@@ -1,6 +1,6 @@
 API for KMA Schedule
 ## API
-/schedule?username=<username>?password=<password>
+/schedule?username=?password=
   
 ##Result
   
