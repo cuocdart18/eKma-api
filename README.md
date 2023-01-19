@@ -6,10 +6,10 @@ API for KMA Schedule
 - /profile    get profile inforrmation
   
 - *params:*
--- *username*
--- *password*
--- *hashed*
-- **Ex:**
+- - username
+- - password
+- - hashed
+- ***Ex:***
 -- /profile?username=CT050413&password=mypassword&hashed=false
   
 ## Result
@@ -23,3 +23,7 @@ API for KMA Schedule
 {"message":"Sai tên đăng nhập hoặc mật khẩu"}
   
 ### Success
+
+## Deployment: Vercel
+
+- **URL:** https://kma-schedule-api.vercel.app/
