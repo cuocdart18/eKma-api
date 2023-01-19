@@ -29,4 +29,5 @@ API for KMA Schedule
 
 ## Deployment: Vercel
 
+- *Vercel serverless Function*
 - **URL:** https://kma-schedule-api.vercel.app/
