@@ -1,6 +1,16 @@
 API for KMA Schedule
 ## API
-/schedule?username=?password=
+
+### GET
+- /schedule   get schedule time table
+- /profile    get profile inforrmation
+  
+- *params:*
+-- *username*
+-- *password*
+-- *hashed*
+- **Ex:**
+-- /profile?username=CT050413&password=mypassword&hashed=false
   
 ## Result
   
