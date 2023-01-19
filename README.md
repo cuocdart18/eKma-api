@@ -11,6 +11,7 @@ API for KMA Schedule
   - hashed
 - ***Ex:***
   - /profile?username=CT050413&password=mypassword&hashed=false
+  - /schedule?username=CT050413&password=34819d7beeabb9260a5c854bc85b3e44&hashed=true
   
 ***Note: mã hoá được sử dụng là MD5***
   
