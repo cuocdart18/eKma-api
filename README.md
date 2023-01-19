@@ -12,6 +12,8 @@ API for KMA Schedule
 - ***Ex:***
   - /profile?username=CT050413&password=mypassword&hashed=false
   
+***Note: mã hoá được sử dụng là MD5***
+  
 ## Result
   
 ### Username or password is empty
