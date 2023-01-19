@@ -31,7 +31,7 @@ API for KMA Schedule
 
 ### Renderer Service
 
-- *URL:* https://kma-api.onrender.com
+- **URL:** https://kma-api.onrender.com
 
 ### Vercel Serverless Function
 
