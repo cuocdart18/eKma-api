@@ -24,7 +24,7 @@ axios.defaults.withCredentials = true
 axios.defaults.crossdomain = true
 axios.defaults.jar = cookieJar
 
-async function main(req) {
+async function main(req, mode, shouldHash) {
     const username = req.username
     const password = req.password
     //const username = req.query.username || (req.body && req.body.username)
@@ -42,15 +42,28 @@ async function main(req) {
 
         let $ = cheerio.load(loginGet.data)
 
-        const formData = {
-            ...parseInitialFormData($),
-            ...parseSelector($),
-            txtUserName: username,
-            txtPassword: md5(password),
-            btnSubmit: 'Đăng nhập',
-        }
+        var form
+        if (shouldHash) {
+            const formData = {
+                ...parseInitialFormData($),
+                ...parseSelector($),
+                txtUserName: username,
+                txtPassword: md5(password),
+                btnSubmit: 'Đăng nhập',
+            }
 
-        const form = qs.stringify(formData)
+            form = qs.stringify(formData)
+        } else {
+            const formData = {
+                ...parseInitialFormData($),
+                ...parseSelector($),
+                txtUserName: username,
+                txtPassword: password,
+                btnSubmit: 'Đăng nhập',
+            }
+
+            form = qs.stringify(formData)
+        }
 
         const config = {
             headers: {
@@ -82,53 +95,53 @@ async function main(req) {
         if (schedule.code != 200) {
             console.log(schedule.message)
         } else {
-            const res = await axios.get(studentProfileUrl, { withCredentials: true, jar: cookieJar })
 
-            $ = cheerio.load(res.data)
-            const displayName = ($('input[name="txtHoDem"]').val() || '') + ' ' + ($('input[name="txtTen"]').val() || '')
-            const studentCode = $('input[name="txtMaSV"]').val() || ''
-            const gender = $('select[name="drpGioiTinh"] > option[selected]').text()
-            const birthday = $('input[name="txtNgaySinh"]').val() || ''
-            const information = {
-                displayName,
-                studentCode,
-                gender,
-                birthday,
-            }
+            if (mode == 1) {
+                const res = await axios.get(studentProfileUrl, { withCredentials: true, jar: cookieJar })
 
-
-            var periods = []
-            schedule.data.forEach(displaySchedule)
-
-
-            function displaySchedule(item, index, arr) {
-
-                var period = {
-                    id: index,
-                    day: item.day,
-                    subjectCode: item.subjectCode,
-                    subjectName: item.subjectName,
-                    className: item.className,
-                    teacher: item.teacher,
-                    lesson: item.lesson,
-                    room: item.room
+                $ = cheerio.load(res.data)
+                const displayName = ($('input[name="txtHoDem"]').val() || '') + ' ' + ($('input[name="txtTen"]').val() || '')
+                const studentCode = $('input[name="txtMaSV"]').val() || ''
+                const gender = $('select[name="drpGioiTinh"] > option[selected]').text()
+                const birthday = $('input[name="txtNgaySinh"]').val() || ''
+                const information = {
+                    displayName,
+                    studentCode,
+                    gender,
+                    birthday,
                 }
 
-                periods[index] = period
+                return JSON.stringify(information)
 
+            } else if (mode == 2) {
+                var periods = []
+                schedule.data.forEach(displaySchedule)
+
+
+                function displaySchedule(item, index, arr) {
+
+                    var period = {
+                        id: index,
+                        day: item.day,
+                        subjectCode: item.subjectCode,
+                        subjectName: item.subjectName,
+                        className: item.className,
+                        teacher: item.teacher,
+                        lesson: item.lesson,
+                        room: item.room
+                    }
+
+                    periods[index] = period
+
+                }
+
+                var result = {
+                    scheduleMessage: schedule.message,
+                    periods: periods
+                }
+
+                return JSON.stringify(result)
             }
-
-            var result = {
-                studentCode: information.studentCode,
-                studentName: information.displayName,
-                gender: information.gender,
-                birthday: information.birthday,
-                scheduleMessage: schedule.message,
-                periods: periods
-            }
-
-            const json = await JSON.stringify(result)
-            return json
 
         }
     } catch (e) {
@@ -145,19 +158,32 @@ server.get("/schedule", function (req, res) {
     var username = req.query.username
     var password = req.query.password
 
-    const account = {
-        username: username,
-        password: password
+    var shouldHash = true
+    if (req.query.hashed == 'true') {
+        shouldHash = false;
     }
-    console.log(`query: username: ${account.username} & password: ${account.password}`)
-    let result = main(account)
+
+    let result = main({ username, password }, 2, shouldHash)
     result.then(function (r) {
-        console.log(r)
         res.send(r)
         res.end()
-
     })
-    
+})
+
+server.get("/profile", function (req, res) {
+    var username = req.query.username
+    var password = req.query.password
+
+    var shouldHash = true
+    if (req.query.hashed == 'true') {
+        shouldHash = false;
+    }
+
+    let result = main({ username, password }, 1, shouldHash)
+    result.then(function (r) {
+        res.send(r)
+        res.end()
+    })
 })
 
 server.listen(3000)
