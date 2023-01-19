@@ -148,6 +148,12 @@ async function main(req, mode, shouldHash) {
 }
 
 const router = server => {
+    server.get("/", function (req, res) {
+        res.writeHead(301, {
+            Location: `https://github.com/HVgiang86/kma-schedule-api-server#readme`
+          }).end();
+    })
+
     server.get("/schedule", function (req, res) {
         var username = req.query.username
         var password = req.query.password
