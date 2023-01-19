@@ -6,11 +6,11 @@ API for KMA Schedule
 - /profile    get profile inforrmation
   
 - *params:*
- - username
- - password
- - hashed
+  - username
+  - password
+  - hashed
 - ***Ex:***
- - /profile?username=CT050413&password=mypassword&hashed=false
+  - /profile?username=CT050413&password=mypassword&hashed=false
   
 ## Result
   
