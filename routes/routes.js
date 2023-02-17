@@ -78,7 +78,10 @@ async function main(req, mode, shouldHash) {
 
         if (wrongPass == 'Bạn đã nhập sai tên hoặc mật khẩu!' || wrongPass == 'Tên đăng nhập không đúng!') {
             console.log("Sai ten dang nhap hoac mat khau")
-            return JSON.stringify("Sai ten dang nhap hoac mat khau");
+            var result = {
+                message: "Sai ten dang nhap hoac mat khau",
+            }
+            return JSON.stringify(result);
         }
 
         if (userFullName == 'khách') {
@@ -132,7 +135,7 @@ async function main(req, mode, shouldHash) {
                 }
 
                 var result = {
-                    scheduleMessage: schedule.message,
+                    message: schedule.message,
                     periods: periods
                 }
 
