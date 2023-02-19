@@ -30,10 +30,6 @@
 
 ## Deployment
 
-### Renderer Service
-
-- **URL:** https://kma-api.onrender.com
-
 ### Vercel Serverless Function
 
-- **URL:** https://kma-schedule-api.vercel.app/
+- **URL:** https://kma-score-api-clone.vercel.app
