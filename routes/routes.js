@@ -104,6 +104,7 @@ async function main(req, mode, shouldHash) {
                 const gender = $('select[name="drpGioiTinh"] > option[selected]').text()
                 const birthday = $('input[name="txtNgaySinh"]').val() || ''
                 const information = {
+                    message: schedule.message,
                     displayName,
                     studentCode,
                     gender,
