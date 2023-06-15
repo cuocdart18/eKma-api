@@ -19,7 +19,8 @@ module.exports = async (cookieJar, drpSemester) => {
 		const selectorData = utils.parseSelector($);
 		const initialFormData = utils.parseInitialFormData($);
 		selectorData.drpTerm = 1;
-		selectorData.drpSemester = drpSemester || selectorData.drpSemester;
+		// for test
+		selectorData.drpSemester = '4f0dc159f1504874b2f9c6ae7c8bd281';
 		selectorData.drpType = 'B';
 		selectorData.btnView = "Xuất file Excel";
 

@@ -93,55 +93,50 @@ async function main(req, mode, shouldHash) {
             return JSON.stringify(result)
         }
 
-        let schedule = await listSchedule(cookieJar)
+        if (mode == PROFILE) {
+            const res = await axios.get(studentProfileUrl, { withCredentials: true, jar: cookieJar })
 
-        if (schedule.code != OK) {
-            console.log(schedule.message)
-        } else {
-            if (mode == PROFILE) {
-                const res = await axios.get(studentProfileUrl, { withCredentials: true, jar: cookieJar })
-
-                $ = cheerio.load(res.data)
-                const displayName = ($('input[name="txtHoDem"]').val() || '') + ' ' + ($('input[name="txtTen"]').val() || '')
-                const studentCode = $('input[name="txtMaSV"]').val() || ''
-                const gender = $('select[name="drpGioiTinh"] > option[selected]').text()
-                const birthday = $('input[name="txtNgaySinh"]').val() || ''
-                const information = {
-                    message: schedule.message,
-                    displayName,
-                    studentCode,
-                    gender,
-                    birthday,
-                }
-
-                return JSON.stringify(information)
-
-            } else if (mode == SCHEDULE) {
-                var periods = []
-                schedule.data.forEach(displaySchedule)
-
-                function displaySchedule(item, index, arr) {
-                    var period = {
-                        id: index,
-                        day: item.day,
-                        subjectCode: item.subjectCode,
-                        subjectName: item.subjectName,
-                        className: item.className,
-                        teacher: item.teacher,
-                        lesson: item.lesson,
-                        room: item.room
-                    }
-                    periods[index] = period
-                }
-
-                var result = {
-                    message: schedule.message,
-                    periods: periods
-                }
-
-                return JSON.stringify(result)
-
+            $ = cheerio.load(res.data)
+            const displayName = ($('input[name="txtHoDem"]').val() || '') + ' ' + ($('input[name="txtTen"]').val() || '')
+            const studentCode = $('input[name="txtMaSV"]').val() || ''
+            const gender = $('select[name="drpGioiTinh"] > option[selected]').text()
+            const birthday = $('input[name="txtNgaySinh"]').val() || ''
+            const information = {
+                message: 'Thành Công',
+                displayName,
+                studentCode,
+                gender,
+                birthday,
             }
+
+            return JSON.stringify(information)
+
+        } else if (mode == SCHEDULE) {
+            let schedule = await listSchedule(cookieJar)
+            var periods = []
+            schedule.data.forEach(displaySchedule)
+
+            function displaySchedule(item, index, arr) {
+                var period = {
+                    id: index,
+                    day: item.day,
+                    subjectCode: item.subjectCode,
+                    subjectName: item.subjectName,
+                    className: item.className,
+                    teacher: item.teacher,
+                    lesson: item.lesson,
+                    room: item.room
+                }
+                periods[index] = period
+            }
+
+            var result = {
+                message: schedule.message,
+                periods: periods
+            }
+
+            return JSON.stringify(result)
+
         }
     } catch (e) {
         console.log(e)
@@ -152,7 +147,7 @@ const router = server => {
     server.get("/", function (req, res) {
         res.writeHead(301, {
             Location: `https://github.com/cuocdart18/kma-schedule-api`
-          }).end();
+        }).end();
     })
 
     server.get("/schedule", function (req, res) {
