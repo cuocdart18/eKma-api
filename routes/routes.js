@@ -141,6 +141,14 @@ async function main(req, mode, shouldHash) {
                 }
 
                 return JSON.stringify(result)
+
+            } else if (mode == 3) {
+
+                var result = {
+                    message: schedule.message
+                }
+
+                return JSON.stringify(result)
             }
 
         }
@@ -154,7 +162,7 @@ async function main(req, mode, shouldHash) {
 const router = server => {
     server.get("/", function (req, res) {
         res.writeHead(301, {
-            Location: `https://github.com/HVgiang86/kma-schedule-api-server#readme`
+            Location: `https://github.com/cuocdart18/kma-schedule-api`
           }).end();
     })
 
@@ -184,6 +192,22 @@ const router = server => {
         }
     
         let result = main({ username, password }, 1, shouldHash)
+        result.then(function (r) {
+            res.send(r)
+            res.end()
+        })
+    })
+
+    server.get("/auth", function (req, res) {
+        var username = req.query.username
+        var password = req.query.password
+    
+        var shouldHash = true
+        if (req.query.hashed == 'true') {
+            shouldHash = false;
+        }
+    
+        let result = main({ username, password }, 3, shouldHash)
         result.then(function (r) {
             res.send(r)
             res.end()
