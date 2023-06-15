@@ -12,6 +12,10 @@ const listSchedule = require('../schedule')
 const loginUrl = 'http://qldt.actvn.edu.vn/CMCSoft.IU.Web.Info/Login.aspx'
 const studentProfileUrl = 'http://qldt.actvn.edu.vn/CMCSoft.IU.Web.Info/StudentProfileNew/HoSoSinhVien.aspx'
 
+const OK = 200
+const PROFILE = 1
+const SCHEDULE = 2
+const AUTH = 3
 
 axiosCookieJarSupport(axios)
 const cookieJar = new tough.CookieJar()
@@ -23,11 +27,8 @@ axios.defaults.jar = cookieJar
 async function main(req, mode, shouldHash) {
     const username = req.username
     const password = req.password
-    //const username = req.query.username || (req.body && req.body.username)
-    //const password = req.query.password || (req.body && req.body.password)
 
     if (!username || !password) {
-        console.log("Missing items!");
         return JSON.stringify("Missing items!");
     }
 
@@ -47,7 +48,6 @@ async function main(req, mode, shouldHash) {
                 txtPassword: md5(password),
                 btnSubmit: 'Đăng nhập',
             }
-
             form = qs.stringify(formData)
         } else {
             const formData = {
@@ -57,7 +57,6 @@ async function main(req, mode, shouldHash) {
                 txtPassword: password,
                 btnSubmit: 'Đăng nhập',
             }
-
             form = qs.stringify(formData)
         }
 
@@ -77,25 +76,29 @@ async function main(req, mode, shouldHash) {
         const wrongPass = $('#lblErrorInfo').text()
 
         if (wrongPass == 'Bạn đã nhập sai tên hoặc mật khẩu!' || wrongPass == 'Tên đăng nhập không đúng!') {
-            console.log("Sai ten dang nhap hoac mat khau")
             var result = {
-                message: "Sai ten dang nhap hoac mat khau",
+                message: "Sai ten dang nhap hoac mat khau"
             }
             return JSON.stringify(result);
         }
 
         if (userFullName == 'khách') {
-            console.log("Please login again!")
             return JSON.stringify("Please login again!");
+        }
+
+        if (mode == AUTH) {
+            var result = {
+                message: "Login successfully"
+            }
+            return JSON.stringify(result)
         }
 
         let schedule = await listSchedule(cookieJar)
 
-        if (schedule.code != 200) {
+        if (schedule.code != OK) {
             console.log(schedule.message)
         } else {
-
-            if (mode == 1) {
+            if (mode == PROFILE) {
                 const res = await axios.get(studentProfileUrl, { withCredentials: true, jar: cookieJar })
 
                 $ = cheerio.load(res.data)
@@ -113,13 +116,11 @@ async function main(req, mode, shouldHash) {
 
                 return JSON.stringify(information)
 
-            } else if (mode == 2) {
+            } else if (mode == SCHEDULE) {
                 var periods = []
                 schedule.data.forEach(displaySchedule)
 
-
                 function displaySchedule(item, index, arr) {
-
                     var period = {
                         id: index,
                         day: item.day,
@@ -130,9 +131,7 @@ async function main(req, mode, shouldHash) {
                         lesson: item.lesson,
                         room: item.room
                     }
-
                     periods[index] = period
-
                 }
 
                 var result = {
@@ -142,20 +141,10 @@ async function main(req, mode, shouldHash) {
 
                 return JSON.stringify(result)
 
-            } else if (mode == 3) {
-
-                var result = {
-                    message: schedule.message
-                }
-
-                return JSON.stringify(result)
             }
-
         }
     } catch (e) {
         console.log(e)
-
-        console.log("Error: ", e)
     }
 }
 
@@ -169,13 +158,11 @@ const router = server => {
     server.get("/schedule", function (req, res) {
         var username = req.query.username
         var password = req.query.password
-    
         var shouldHash = true
         if (req.query.hashed == 'true') {
             shouldHash = false;
         }
-    
-        let result = main({ username, password }, 2, shouldHash)
+        let result = main({ username, password }, SCHEDULE, shouldHash)
         result.then(function (r) {
             res.send(r)
             res.end()
@@ -185,13 +172,11 @@ const router = server => {
     server.get("/profile", function (req, res) {
         var username = req.query.username
         var password = req.query.password
-    
         var shouldHash = true
         if (req.query.hashed == 'true') {
             shouldHash = false;
         }
-    
-        let result = main({ username, password }, 1, shouldHash)
+        let result = main({ username, password }, PROFILE, shouldHash)
         result.then(function (r) {
             res.send(r)
             res.end()
@@ -201,13 +186,11 @@ const router = server => {
     server.get("/auth", function (req, res) {
         var username = req.query.username
         var password = req.query.password
-    
         var shouldHash = true
         if (req.query.hashed == 'true') {
             shouldHash = false;
         }
-    
-        let result = main({ username, password }, 3, shouldHash)
+        let result = main({ username, password }, AUTH, shouldHash)
         result.then(function (r) {
             res.send(r)
             res.end()

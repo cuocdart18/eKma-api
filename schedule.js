@@ -28,7 +28,8 @@ module.exports = async (cookieJar, drpSemester) => {
 			...selectorData
 		}
 
-		//console.log(formData)
+		console.log(formData)
+		console.log(selectorData)
 
 		let file = await axios.post(url, qs.stringify(formData), {
 			responseType: 'arraybuffer',
@@ -49,6 +50,7 @@ module.exports = async (cookieJar, drpSemester) => {
 
 		return Promise.resolve(re)
 	} catch (err) {
+
 		let re = {
 			code: 400,
 			message: err
