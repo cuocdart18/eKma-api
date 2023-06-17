@@ -23,7 +23,7 @@ const parseSelector = ($) => {
 	let select = form.find('select')
 
 	select.each((i, elem) => {
-		let options = $(elem).find($('option[selected]'))[0]
+		let options = $(elem).find($('option[selected]'))
 		data[$(elem).attr('name')] = (options && $(options).attr('value')) || undefined
 	})
 
@@ -31,6 +31,6 @@ const parseSelector = ($) => {
 }
 
 module.exports = {
-    parseInitialFormData,
-    parseSelector
+	parseInitialFormData,
+	parseSelector
 }

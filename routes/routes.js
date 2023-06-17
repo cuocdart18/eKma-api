@@ -29,13 +29,13 @@ async function main(req, mode, shouldHash) {
     const password = req.password
 
     if (!username || !password) {
-        return JSON.stringify("Missing items!");
+        console.log('Missing items!');
+        return JSON.stringify("Missing items!")
     }
 
-    console.log('Login With ID:', username);
-
     try {
-        const loginGet = await axios.get(loginUrl, { withCredentials: true, jar: cookieJar })
+        const configLogin = { withCredentials: true, jar: cookieJar }
+        const loginGet = await axios.get(loginUrl, configLogin)
 
         let $ = cheerio.load(loginGet.data)
 
@@ -68,7 +68,6 @@ async function main(req, mode, shouldHash) {
             withCredentials: true,
             jar: cookieJar,
         }
-
         const loginPost = await axios.post(loginUrl, form, config)
 
         $ = cheerio.load(loginPost.data)
@@ -76,17 +75,20 @@ async function main(req, mode, shouldHash) {
         const wrongPass = $('#lblErrorInfo').text()
 
         if (wrongPass == 'Bạn đã nhập sai tên hoặc mật khẩu!' || wrongPass == 'Tên đăng nhập không đúng!') {
+            console.log('Sai ten dang nhap hoac mat khau')
             var result = {
                 message: "Sai ten dang nhap hoac mat khau"
             }
-            return JSON.stringify(result);
+            return JSON.stringify(result)
         }
 
         if (userFullName == 'khách') {
-            return JSON.stringify("Please login again!");
+            console.log('author: khách')
+            return JSON.stringify("Please login again!")
         }
 
         if (mode == AUTH) {
+            console.log('get Auth')
             var result = {
                 message: "Login successfully"
             }
@@ -94,7 +96,12 @@ async function main(req, mode, shouldHash) {
         }
 
         if (mode == PROFILE) {
-            const res = await axios.get(studentProfileUrl, { withCredentials: true, jar: cookieJar })
+            console.log('get Profile')
+            const config = {
+                withCredentials: true,
+                jar: cookieJar
+            }
+            const res = await axios.get(studentProfileUrl, config)
 
             $ = cheerio.load(res.data)
             const displayName = ($('input[name="txtHoDem"]').val() || '') + ' ' + ($('input[name="txtTen"]').val() || '')
@@ -110,8 +117,9 @@ async function main(req, mode, shouldHash) {
             }
 
             return JSON.stringify(information)
+        }
 
-        } else if (mode == SCHEDULE) {
+        if (mode == SCHEDULE) {
             let schedule = await listSchedule(cookieJar)
             var periods = []
             schedule.data.forEach(displaySchedule)
@@ -136,10 +144,11 @@ async function main(req, mode, shouldHash) {
             }
 
             return JSON.stringify(result)
-
         }
     } catch (e) {
+        console.log('-------------------------------------------------------')
         console.log(e)
+        console.log('-------------------------------------------------------')
     }
 }
 
@@ -147,7 +156,7 @@ const router = server => {
     server.get("/", function (req, res) {
         res.writeHead(301, {
             Location: `https://github.com/cuocdart18/kma-schedule-api`
-        }).end();
+        }).end()
     })
 
     server.get("/schedule", function (req, res) {
@@ -193,4 +202,4 @@ const router = server => {
     })
 }
 
-module.exports = router;
+module.exports = router
