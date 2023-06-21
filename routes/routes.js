@@ -16,6 +16,25 @@ const OK = 200
 const PROFILE = 1
 const SCHEDULE = 2
 const AUTH = 3
+const UPDATE_SCHEDULE = 4
+
+const drpSemesters = [
+    '067aa253bc124d7089df25efe280dd00',     // 1_2023_2024
+    '4f0dc159f1504874b2f9c6ae7c8bd281',
+    '8e5f8f99cc7b4ddc83cd62863244b432',
+    'f73ceb56aac846d6865761a4fa87dc7c',
+    'fe894d5f58cc491a8fdbd50b46d1f682',
+    '4aeee21881294e4597e8e77c4c4bed04',
+    '2785c57c8f50480b91437980bb75f7ed',
+    '6958f2ddc785427d96cc6259be027f7a',
+    'e040d3df1f4b45c89a1fc1ebba2cb39c',
+    'edbd12cb31074a0aadacfbcc108d9d24',
+    'f85b945085ee4b8898a30165ca1833ff',
+    '665543dbe0cb4f59880c386a95634762',
+    'f5e86403ffb44689a948c9640d7bad5b',
+    '852cf26eb5624de1aaff02c7467326b8',
+    '9543b9fb32d34f10a6aaf15761919b7a',     // 1_2016_2017
+]
 
 axiosCookieJarSupport(axios)
 const cookieJar = new tough.CookieJar()
@@ -108,6 +127,7 @@ async function main(req, mode, shouldHash) {
             const studentCode = $('input[name="txtMaSV"]').val() || ''
             const gender = $('select[name="drpGioiTinh"] > option[selected]').text()
             const birthday = $('input[name="txtNgaySinh"]').val() || ''
+
             const information = {
                 message: 'Thành Công',
                 displayName,
@@ -120,11 +140,12 @@ async function main(req, mode, shouldHash) {
         }
 
         if (mode == SCHEDULE) {
-            let schedule = await listSchedule(cookieJar)
             var periods = []
-            schedule.data.forEach(displaySchedule)
+            var counter = 0
 
-            function displaySchedule(item, index, arr) {
+            let schedule = await listSchedule(cookieJar, drpSemesters[1])
+            schedule.data.forEach(convertToPeriod)
+            function convertToPeriod(item, index, arr) {
                 var period = {
                     id: index,
                     day: item.day,
@@ -139,7 +160,7 @@ async function main(req, mode, shouldHash) {
             }
 
             var result = {
-                message: schedule.message,
+                message: 'Thành Công',
                 periods: periods
             }
 

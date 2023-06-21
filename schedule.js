@@ -4,7 +4,7 @@ const utils = require('./utils')
 const qs = require('query-string')
 const parser = require("./parser")
 
-module.exports = async (cookieJar) => {
+module.exports = async (cookieJar, drpSemester) => {
 
 	axios.defaults.jar = cookieJar
 	axios.defaults.withCredentials = true
@@ -19,8 +19,8 @@ module.exports = async (cookieJar) => {
 		const selectorData = utils.parseSelector($)
 		const initialFormData = utils.parseInitialFormData($)
 		console.log(selectorData)
-		selectorData.drpTerm = 1
-		selectorData.drpSemester = '4f0dc159f1504874b2f9c6ae7c8bd281'
+		// selectorData.drpTerm = 1
+		selectorData.drpSemester = drpSemester
 		selectorData.drpType = 'B'
 		selectorData.btnView = "Xuất file Excel"
 
