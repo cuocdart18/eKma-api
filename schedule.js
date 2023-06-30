@@ -23,13 +23,12 @@ module.exports = async (cookieJar, drpSemester) => {
 		selectorData.drpSemester = drpSemester
 		selectorData.drpType = 'B'
 		selectorData.btnView = "Xuất file Excel"
-
 		let formData = {
 			...initialFormData,
 			...selectorData
 		}
 
-		console.log(formData)
+		// console.log(formData)
 
 		var form = qs.stringify(formData)
 		const config = {
