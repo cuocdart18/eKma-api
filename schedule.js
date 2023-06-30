@@ -18,7 +18,7 @@ module.exports = async (cookieJar, drpSemester) => {
 		const $ = cheerio.load(res.data)
 		const selectorData = utils.parseSelector($)
 		const initialFormData = utils.parseInitialFormData($)
-		console.log(selectorData)
+		// console.log(selectorData)
 		// selectorData.drpTerm = 1
 		selectorData.drpSemester = drpSemester
 		selectorData.drpType = 'B'
