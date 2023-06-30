@@ -147,16 +147,28 @@ async function main(req, mode, shouldHash) {
         }
 
         if (mode == SCHEDULE) {
-            var periods = [];
             var counter = 0;
 
-            drpSemesters.forEach(async (semester) => {
-                let schedule = await listSchedule(cookieJar, semester);
-                schedule.data.forEach(convertToPeriod);
-                console.log('------------------------------' + periods.length);
-            })
+            const ConvertLoop = async () => {
+                periods = [];
 
-            function convertToPeriod(item, index, arr) {
+                for (const semester of drpSemesters) {
+                    let schedule = await listSchedule(cookieJar, semester);
+                    schedule.data.forEach((schedule) => convertToPeriod(schedule, periods));
+                }
+
+                return periods
+            }
+            var fullPeriod = await ConvertLoop();
+
+            var result = {
+                message: "Thành Công",
+                periods: fullPeriod,
+            };
+
+            return JSON.stringify(result);
+
+            function convertToPeriod(item, arr) {
                 var period = {
                     id: counter,
                     day: item.day,
@@ -167,16 +179,9 @@ async function main(req, mode, shouldHash) {
                     lesson: item.lesson,
                     room: item.room,
                 };
-                periods.push(period)
+                arr.push(period);
                 counter++;
             }
-
-            var result = {
-                message: "Thành Công",
-                periods: periods,
-            };
-
-            return JSON.stringify(result);
         }
     } catch (e) {
         console.log("-------------------------------------------------------");

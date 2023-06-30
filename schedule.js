@@ -18,15 +18,17 @@ module.exports = async (cookieJar, drpSemester) => {
 		const $ = cheerio.load(res.data)
 		const selectorData = utils.parseSelector($)
 		const initialFormData = utils.parseInitialFormData($)
+		// console.log(selectorData)
 		// selectorData.drpTerm = 1
 		selectorData.drpSemester = drpSemester
 		selectorData.drpType = 'B'
 		selectorData.btnView = "Xuất file Excel"
-
 		let formData = {
 			...initialFormData,
 			...selectorData
 		}
+
+		// console.log(formData)
 
 		var form = qs.stringify(formData)
 		const config = {
