@@ -17,6 +17,7 @@ const PROFILE = 1;
 const SCHEDULE = 2;
 const AUTH = 3;
 const UPDATE_SCHEDULE = 4;
+const SCHEDULE_WITH_SEMESTER_CODE = 5;
 
 const drpSemesters = [
     "067aa253bc124d7089df25efe280dd00", // 1_2023_2024
@@ -183,6 +184,32 @@ async function main(req, mode, shouldHash) {
                 counter++;
             }
         }
+
+        if (mode == SCHEDULE_WITH_SEMESTER_CODE) {
+            let schedule = await listSchedule(cookieJar, req.semesterCode);
+            var periods = [];
+            schedule.data.forEach(displaySchedule);
+            function displaySchedule(item, index, arr) {
+                var period = {
+                    id: (item.day + item.subjectCode).hashCode(),
+                    day: item.day,
+                    subjectCode: item.subjectCode,
+                    subjectName: item.subjectName,
+                    className: item.className,
+                    teacher: item.teacher,
+                    lesson: item.lesson,
+                    room: item.room
+                }
+                periods[index] = period
+            }
+
+            var result = {
+                message: "Thành Công",
+                periods: periods
+            };
+
+            return JSON.stringify(result);
+        }
     } catch (e) {
         console.log("-------------------------------------------------------");
         console.log(e);
@@ -207,6 +234,21 @@ const router = (server) => {
             shouldHash = false;
         }
         let result = main({ username, password }, SCHEDULE, shouldHash);
+        result.then(function (r) {
+            res.send(r);
+            res.end();
+        });
+    });
+
+    server.get("/schedule-with-semester-code", function (req, res) {
+        var username = req.query.username;
+        var password = req.query.password;
+        var shouldHash = true;
+        var semesterCode = req.query.semesterCode;
+        if (req.query.hashed == "true") {
+            shouldHash = false;
+        }
+        let result = main({ username, password, semesterCode }, SCHEDULE_WITH_SEMESTER_CODE, shouldHash);
         result.then(function (r) {
             res.send(r);
             res.end();
@@ -240,6 +282,17 @@ const router = (server) => {
             res.end();
         });
     });
+};
+
+String.prototype.hashCode = function () {
+    var hash = 0, i, chr;
+    if (this.length === 0) return hash;
+    for (i = 0; i < this.length; i++) {
+        chr = this.charCodeAt(i);
+        hash = ((hash << 5) - hash) + chr;
+        hash |= 0; // Convert to 32bit integer
+    }
+    return hash;
 };
 
 module.exports = router;
