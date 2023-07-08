@@ -18,6 +18,7 @@ const SCHEDULE = 2;
 const AUTH = 3;
 const UPDATE_SCHEDULE = 4;
 const SCHEDULE_WITH_SEMESTER_CODE = 5;
+const SEMESTER_CODES = 6;
 
 const drpSemesters = [
     "067aa253bc124d7089df25efe280dd00", // 1_2023_2024
@@ -45,6 +46,10 @@ axios.defaults.crossdomain = true;
 axios.defaults.jar = cookieJar;
 
 async function main(req, mode, shouldHash) {
+    if (mode == SEMESTER_CODES) {
+        return JSON.stringify(drpSemesters);
+    }
+
     const username = req.username;
     const password = req.password;
 
@@ -249,6 +254,14 @@ const router = (server) => {
             shouldHash = false;
         }
         let result = main({ username, password, semesterCode }, SCHEDULE_WITH_SEMESTER_CODE, shouldHash);
+        result.then(function (r) {
+            res.send(r);
+            res.end();
+        });
+    });
+
+    server.get("/semester-codes", function (req, res) {
+        let result = main({}, mode = SEMESTER_CODES);
         result.then(function (r) {
             res.send(r);
             res.end();
