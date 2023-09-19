@@ -231,7 +231,7 @@ const router = (server) => {
     server.get("/", function (req, res) {
         res
             .writeHead(301, {
-                Location: `https://github.com/cuocdart18/kma-schedule-api`,
+                Location: `https://github.com/cuocdart18/eKma-api`,
             })
             .end();
     });
