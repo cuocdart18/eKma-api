@@ -25,6 +25,7 @@
     "node-xlsx": "^0.15.0",
     "nodemon": "^2.0.20",
     "query-string": "^6.13.7",
-    "tough-cookie": "^4.0.0"
+    "tough-cookie": "^4.0.0",
+    "request": "^2.88.0"
   }
 }
