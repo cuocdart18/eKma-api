@@ -4,6 +4,8 @@ const tough = require("tough-cookie");
 const md5 = require("md5");
 const qs = require("query-string");
 const cheerio = require("cheerio");
+var request = require('request');
+var { google } = require('googleapis');
 
 const { parseInitialFormData, parseSelector } = require("../utils");
 const listSchedule = require("../schedule");
@@ -19,6 +21,9 @@ const AUTH = 3;
 const UPDATE_SCHEDULE = 4;
 const SCHEDULE_WITH_SEMESTER_CODE = 5;
 const SEMESTER_CODES = 6;
+
+var MESSAGING_SCOPE = "https://www.googleapis.com/auth/firebase.messaging";
+var SCOPES = [MESSAGING_SCOPE];
 
 const drpSemesters = [
     "067aa253bc124d7089df25efe280dd00", // 1_2023_2024
@@ -295,7 +300,54 @@ const router = (server) => {
             res.end();
         });
     });
+
+    server.post("/call-invitation", function (req, res) {
+
+        getAccessToken().then(function (access_token) {
+
+            var token = req.body.token;
+            var data = req.body.data;
+
+            request.post({
+                headers: {
+                    Authorization: 'Bearer ' + access_token
+                },
+                url: "https://fcm.googleapis.com/v1/projects/ekma-c517e/messages:send",
+                body: JSON.stringify(
+                    {
+                        "message": {
+                            "token": token,
+                            "data": data
+                        }
+                    }
+                )
+            }, function (error, response, body) {
+                res.end(body);
+                console.log(body);
+            });
+        })
+    })
 };
+
+function getAccessToken() {
+    return new Promise(function (resolve, reject) {
+        var key = require("./service-account.json");
+        var jwtClient = new google.auth.JWT(
+            key.client_email,
+            null,
+            key.private_key,
+            SCOPES,
+            null
+        );
+        jwtClient.authorize(function (err, tokens) {
+            if (err) {
+                reject(err);
+                return;
+            }
+            resolve(tokens.access_token);
+        });
+    });
+}
 
 String.prototype.hashCode = function () {
     var hash = 0, i, chr;
