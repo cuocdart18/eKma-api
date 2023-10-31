@@ -227,8 +227,41 @@ async function main(req, mode, shouldHash) {
     }
 }
 
-const router = (server) => {
-    server.get("/", function (req, res) {
+const router = (app, io) => {
+    //-------------------------- SOCKET IO
+    let onlineUsers = [];
+    io.of('/status').on('connection', (socket) => {
+        console.log('a user connected');
+
+        socket.on("addOnlineUser", (userId) => {
+            if (!onlineUsers.some((user) => user.userId === userId)) {
+                onlineUsers.push(
+                    {
+                        userId: userId,
+                        socketId: socket.id
+                    }
+                );
+                console.log("new user is here!", onlineUsers);
+            }
+            io.emit("getUsers", onlineUsers);
+        });
+
+        socket.on("disconnect", (reason) => {
+            onlineUsers = onlineUsers.filter((user) => user.socketId !== socket.id)
+            console.log("user disconnected = ", onlineUsers);
+            console.log("reason = ", reason);
+            io.emit("getUsers", onlineUsers);
+        });
+
+        socket.on("removeOfflineUser", () => {
+            onlineUsers = onlineUsers.filter((user) => user.socketId !== socket.id)
+            console.log("user disconnected", onlineUsers);
+            io.emit("getUsers", onlineUsers);
+        });
+    });
+
+    //-------------------------- RESTful API
+    app.get("/", function (req, res) {
         res
             .writeHead(301, {
                 Location: `https://github.com/cuocdart18/eKma-api`,
@@ -236,7 +269,7 @@ const router = (server) => {
             .end();
     });
 
-    server.get("/schedule", function (req, res) {
+    app.get("/schedule", function (req, res) {
         var username = req.query.username;
         var password = req.query.password;
         var shouldHash = true;
@@ -250,7 +283,7 @@ const router = (server) => {
         });
     });
 
-    server.get("/schedule-with-semester-code", function (req, res) {
+    app.get("/schedule-with-semester-code", function (req, res) {
         var username = req.query.username;
         var password = req.query.password;
         var shouldHash = true;
@@ -265,7 +298,7 @@ const router = (server) => {
         });
     });
 
-    server.get("/semester-codes", function (req, res) {
+    app.get("/semester-codes", function (req, res) {
         let result = main({}, mode = SEMESTER_CODES);
         result.then(function (r) {
             res.send(r);
@@ -273,7 +306,7 @@ const router = (server) => {
         });
     });
 
-    server.get("/profile", function (req, res) {
+    app.get("/profile", function (req, res) {
         var username = req.query.username;
         var password = req.query.password;
         var shouldHash = true;
@@ -287,7 +320,7 @@ const router = (server) => {
         });
     });
 
-    server.get("/auth", function (req, res) {
+    app.get("/auth", function (req, res) {
         var username = req.query.username;
         var password = req.query.password;
         var shouldHash = true;
@@ -301,7 +334,7 @@ const router = (server) => {
         });
     });
 
-    server.post("/call-invitation", function (req, res) {
+    app.post("/call-invitation", function (req, res) {
 
         try {
             getAccessToken().then(function (access_token) {
