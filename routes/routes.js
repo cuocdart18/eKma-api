@@ -232,7 +232,7 @@ const router = (app, io) => {
     //-------------------------- SOCKET IO
     let onlineUsers = [];
     io.of('/status').on('connection', (socket) => {
-        console.log('a user connected');
+        console.log('a user connected ', onlineUsers);
 
         socket.on("addOnlineUser", (userId) => {
             if (!onlineUsers.some((user) => user.userId === userId)) {
@@ -242,22 +242,17 @@ const router = (app, io) => {
                         socketId: socket.id
                     }
                 );
-                console.log("new user is here!", onlineUsers);
             }
-            io.emit("getUsers", onlineUsers);
         });
 
         socket.on("disconnect", (reason) => {
-            onlineUsers = onlineUsers.filter((user) => user.socketId !== socket.id)
-            console.log("user disconnected = ", onlineUsers);
+            console.log("user disconnected = ", socket.id);
             console.log("reason = ", reason);
-            io.emit("getUsers", onlineUsers);
         });
 
         socket.on("removeOfflineUser", () => {
             onlineUsers = onlineUsers.filter((user) => user.socketId !== socket.id)
-            console.log("user disconnected", onlineUsers);
-            io.emit("getUsers", onlineUsers);
+            console.log("user disconnected ", onlineUsers);
         });
     });
 
