@@ -26,6 +26,7 @@ var MESSAGING_SCOPE = "https://www.googleapis.com/auth/firebase.messaging";
 var SCOPES = [MESSAGING_SCOPE];
 
 const drpSemesters = [
+    "d3320f14e08b4763bcd2a360a07bd0cd", // 1_2024_2025
     "6761f16424244e5fa9984bb2c3b8fe9a", // 2_2023_2024
     "067aa253bc124d7089df25efe280dd00", // 1_2023_2024
     "4f0dc159f1504874b2f9c6ae7c8bd281", // 2_2022_2023
