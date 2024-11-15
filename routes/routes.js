@@ -21,6 +21,7 @@ const AUTH = 3;
 const UPDATE_SCHEDULE = 4;
 const SCHEDULE_WITH_SEMESTER_CODE = 5;
 const SEMESTER_CODES = 6;
+const PROFILE_DETAIL = 7;
 
 var MESSAGING_SCOPE = "https://www.googleapis.com/auth/firebase.messaging";
 var SCOPES = [MESSAGING_SCOPE];
@@ -154,6 +155,37 @@ async function main(req, mode, shouldHash) {
                 studentCode,
                 gender,
                 birthday,
+            };
+
+            return JSON.stringify(information);
+        }
+
+        if (mode == PROFILE_DETAIL) {
+            console.log("get Profile detail");
+            const config = {
+                withCredentials: true,
+                jar: cookieJar,
+            };
+            const res = await axios.get(studentProfileUrl, config);
+
+            $ = cheerio.load(res.data);
+            const displayName = ($('input[name="txtHoDem"]').val() || "") + " " + ($('input[name="txtTen"]').val() || "");
+            const studentCode = $('input[name="txtMaSV"]').val() || "";
+            const gender = $('select[name="drpGioiTinh"] > option[selected]').text();
+            const birthday = $('input[name="txtNgaySinh"]').val() || "";
+            const hometown = $('select[name="drpTinhThanh"] > option[selected]').text().split('_')[1];
+            const phoneNumber = $('input[name="txtDienThoaiCaNHAN"]').val() || "";
+            const email = $('input[name="txtEmail"]').val() || "";
+
+            const information = {
+                message: "Thành Công",
+                displayName,
+                studentCode,
+                gender,
+                birthday,
+                hometown,
+                phoneNumber,
+                email
             };
 
             return JSON.stringify(information);
@@ -311,6 +343,20 @@ const router = (app, io) => {
             shouldHash = false;
         }
         let result = main({ username, password }, PROFILE, shouldHash);
+        result.then(function (r) {
+            res.send(r);
+            res.end();
+        });
+    });
+
+    app.get("/profile-detail", function (req, res) {
+        var username = req.query.username;
+        var password = req.query.password;
+        var shouldHash = true;
+        if (req.query.hashed == "true") {
+            shouldHash = false;
+        }
+        let result = main({ username, password }, PROFILE_DETAIL, shouldHash);
         result.then(function (r) {
             res.send(r);
             res.end();
