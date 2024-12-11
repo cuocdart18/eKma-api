@@ -407,6 +407,37 @@ const router = (app, io) => {
             console.log(e);
         }
     })
+
+    app.post("/send-new-message", function (req, res) {
+
+        try {
+            getAccessToken().then(function (access_token) {
+
+                var token = req.body.token;
+                var data = req.body.data;
+
+                request.post({
+                    headers: {
+                        Authorization: 'Bearer ' + access_token
+                    },
+                    url: "https://fcm.googleapis.com/v1/projects/ekma-c517e/messages:send",
+                    body: JSON.stringify(
+                        {
+                            "message": {
+                                "token": token,
+                                "data": data
+                            }
+                        }
+                    )
+                }, function (error, response, body) {
+                    res.end(body);
+                    console.log(body);
+                });
+            })
+        } catch (e) {
+            console.log(e);
+        }
+    })
 };
 
 function getAccessToken() {
